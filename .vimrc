@@ -1,65 +1,83 @@
-" test
-set nocompatible              " be iMproved, required
-filetype off                  " required
+filetype indent on
+filetype plugin on
+set nocompatible
+set number
+set relativenumber
+set cursorline
+set tabstop=4
+set shiftwidth=4
+set incsearch
+set termguicolors
+syntax on
+syntax enable
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+hi LineNr cterm=bold ctermfg=DarkGrey ctermbg=NONE
+hi CursorLineNr cterm=bold ctermfg=DarkCyan ctermbg=NONE
 
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'suan/vim-instant-markdown'
-Plugin 'ghifarit53/tokyonight-vim'
-Plugin 'kien/ctrlp.vim'
+inoremap ( ()<Esc>i
+inoremap [ []<Esc>i
+inoremap " ""<Esc>i
+inoremap ' ''<Esc>i
+inoremap {<CR> {<CR>}<Esc>ko
+inoremap {{ {}<Esc>i
 
-call vundle#end()            " required
-filetype plugin indent on    " required
+inoremap jk <Esc>
+inoremap <F5> <Esc><F5>
 
-:set nu
-:set rnu
-:set cursorline
-:set tabstop=4
-:set shiftwidth=4
-:set incsearch
-:set termguicolors
-:syntax on
+function! ExecuteFile()
+    let extension = expand('%:e')
+    w
+    if extension == 'py'
+        execute '!python3 %'
+    elseif extension == 'c'
+        execute '!gcc -g %:r.c -o %:r && ./%:r'
+    endif
+endfunction
+
+nnoremap <F5> :call ExecuteFile()<CR>
+
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+call plug#begin()
+
+" List your plugins here
+Plug 'tpope/vim-sensible'
+Plug 'itchyny/lightline.vim'
+Plug 'preservim/nerdtree'
+Plug 'ghifarit53/tokyonight-vim'
+Plug 'https://github.com/ctrlpvim/ctrlp.vim'
+Plug 'https://github.com/instant-markdown/vim-instant-markdown'
+Plug 'https://github.com/tpope/vim-commentary'
+
+call plug#end()
+
+" lightline
+set background=dark
+let g:lightline = {
+      \ 'colorscheme': 'one',
+      \ }
+
+
+set noshowmode
+" nerdtree key binding
+nnoremap <C-b> :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+
+set termguicolors
 
 let g:tokyonight_style = 'night' " available: night, storm
 let g:tokyonight_enable_italic = 1
 
 colorscheme tokyonight
 
-:hi LineNr cterm=bold ctermfg=DarkGrey ctermbg=NONE
-:hi CursorLineNr cterm=bold ctermfg=DarkCyan ctermbg=NONE
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_working_path_mode = 'ra'
 
-:inoremap ( ()<Esc>i
-:inoremap [ []<Esc>i
-:inoremap [ []<Esc>i
-:inoremap " ""<Esc>i
-:inoremap ' ''<Esc>i
-:inoremap {<CR> {<CR>}<Esc>ko
-:inoremap {{ {}<Esc>i
-:inoremap jk <Esc>
-:inoremap <F5> <Esc><F5>
-
-" Function to execute current file based on its extension
-function! ExecuteFile()
-    let extension = expand('%:e')
-    
-    " Save file first
-    :w
-    
-    if extension == 'py'
-        silent !clear
-        execute '!python3 %'
-    elseif extension == 'c'
-        silent !clear
-        execute '!gcc -fsanitize=address,undefined -g %:r.c -DDEBUG -O2 -o %:r && echo "Compiled" && ./%:r'
-    endif
-endfunction
-:nnoremap <C-b> :NERDTreeFocus<CR>
-:nnoremap <C-n> :NERDTree<CR>
-:nnoremap <C-t> :NERDTreeToggle<CR>
-:nnoremap <C-f> :NERDTreeFind<CR>
-:nnoremap <F5> :call ExecuteFile()<CR>
-" Map Ctrl+A to select all and copy to system clipboard
-:nnoremap <C-a> ggVG"+y
+let g:instant_markdown_mathjax = 1
+let g:instant_markdown_theme = 'dark'
